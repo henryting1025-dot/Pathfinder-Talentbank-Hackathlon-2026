@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Career OS — Enterprise Trajectory Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --sidebar-bg: #0f172a;
+      --sidebar-text: #94a3b8;
+      --sidebar-hover: #1e293b;
+      --sidebar-active: #1e293b;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-hint: #94a3b8;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --primary: #2563eb;
+      --green: #22c55e;
+      --green-light: #dcfce7;
+      --green-text: #166534;
+      --green-border: #bbf7d0;
+      --blue-light: #dbeafe;
+      --blue-text: #1e40af;
+      --blue-border: #bfdbfe;
+      --amber-light: #fef3c7;
+      --amber-text: #92400e;
+      --amber-border: #fde68a;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --font: 'DM Sans', -apple-system, sans-serif;
+      --mono: 'DM Mono', monospace;
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── App Shell ── */
+    .app {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      background: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      color: var(--sidebar-text);
+      overflow-y: auto;
+    }
+
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+    .sidebar-logo {
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .logo-mark {
+      width: 28px; height: 28px;
+      background: #3b82f6;
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .logo-mark svg { display: block; }
+
+    .logo-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.2px;
+    }
+
+    .sidebar-section {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      color: #475569;
+      padding: 18px 18px 8px;
+    }
+
+    .cand-item {
+      padding: 12px 18px;
+      cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .cand-item:hover { background: var(--sidebar-hover); }
+
+    .cand-item.active {
+      background: var(--sidebar-active);
+      border-left-color: #3b82f6;
+    }
+
+    .cand-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 3px;
+    }
+
+    .cand-meta {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot-green {
+      background: #22c55e;
+      animation: pulse-green 2.2s infinite;
+    }
+
+    .dot-blue {
+      background: #60a5fa;
+      animation: pulse-blue 2.2s infinite;
+    }
+
+    .dot-gray { background: #475569; }
+
+    @keyframes pulse-green {
+      0%   { box-shadow: 0 0 0 0 rgba(34,197,94,0.6); }
+      70%  { box-shadow: 0 0 0 7px rgba(34,197,94,0); }
+      100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+    }
+
+    @keyframes pulse-blue {
+      0%   { box-shadow: 0 0 0 0 rgba(96,165,250,0.6); }
+      70%  { box-shadow: 0 0 0 7px rgba(96,165,250,0); }
+      100% { box-shadow: 0 0 0 0 rgba(96,165,250,0); }
+    }
+
+    /* ── Main Panel ── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .view {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .view.active { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Header ── */
+    .view-head {
+      padding: 28px 40px 22px;
+      border-bottom: 1px solid var(--border);
+      background: #f8fafc;
+      flex-shrink: 0;
+    }
+
+    .module-tag {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .tag-green { color: #16a34a; }
+    .tag-blue  { color: var(--primary); }
+
+    .cand-heading {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.1;
+    }
+
+    .cand-sub {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+
+    .head-badges {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid;
+    }
+
+    .badge-green { background: var(--green-light); color: var(--green-text); border-color: var(--green-border); }
+    .badge-blue  { background: var(--blue-light);  color: var(--blue-text);  border-color: var(--blue-border); }
+    .badge-amber { background: var(--amber-light); color: var(--amber-text); border-color: var(--amber-border); }
+    .badge-gray  { background: #f1f5f9; color: #475569; border-color: var(--border-strong); }
+
+    /* ── Body ── */
+    .view-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 40px;
+    }
+
+    .view-body::-webkit-scrollbar { width: 5px; }
+    .view-body::-webkit-scrollbar-track { background: transparent; }
+    .view-body::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+
+    /* Score Row */
+    .score-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .score-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+    }
+
+    .score-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-hint);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .score-val {
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .score-note {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Section blocks */
+    .block {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+
+    .block-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Gap Bars */
+    .gap-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .gap-row:last-child { margin-bottom: 0; }
+
+    .gap-label {
+      width: 110px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .gap-track {
+      flex: 1;
+      height: 7px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .gap-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 1s cubic-bezier(0.4,0,0.2,1);
+      width: 0%;
+    }
+
+    .fill-green  { background: #4ade80; }
+    .fill-yellow { background: #fbbf24; }
+    .fill-red    { background: #f87171; }
+
+    .gap-pct {
+      width: 34px;
+      text-align: right;
+      font-size: 11px;
+      font-family: var(--mono);
+      color: var(--text-muted);
+    }
+
+    /* Warmth Tracker */
+    .warmth-track {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+
+    .warmth-node {
+      flex: 1;
+      padding: 7px 4px;
+      border-radius: var(--radius-sm);
+      border: 1px solid;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .wn-done    { background: var(--green-light); color: var(--green-text); border-color: var(--green-border); }
+    .wn-active  { background: var(--amber-light); color: var(--amber-text); border-color: var(--amber-border); }
+    .wn-pending { background: #f8fafc; color: var(--text-hint); border-color: var(--border); }
+
+    .warmth-caption {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Trajectory Timeline */
+    .traj-item {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .traj-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+    .traj-icon {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .icon-past { background: #f1f5f9; }
+    .icon-now  { background: var(--green-light); }
+    .icon-now-blue { background: var(--blue-light); }
+
+    .traj-content { flex: 1; }
+
+    .traj-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-hint);
+      margin-bottom: 3px;
+    }
+
+    .traj-text {
+      font-size: 13px;
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+
+    .tech-chip {
+      display: inline-block;
+      background: white;
+      border: 1px solid var(--border-strong);
+      padding: 1px 8px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin: 0 1px;
+    }
+
+    /* ── Footer ── */
+    .view-foot {
+      padding: 18px 40px;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+
+    .gen-btn {
+      padding: 13px 24px;
+      background: var(--text-main);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 0.2s, transform 0.15s;
+      width: 100%;
+      justify-content: center;
+      max-width: 380px;
+    }
+
+    .gen-btn:hover:not(:disabled) { opacity: 0.85; transform: translateY(-1px); }
+    .gen-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .draft-wrap {
+      display: none;
+      background: #f8fafc;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-top: 14px;
+    }
+
+    .draft-wrap.show { display: block; animation: fadeIn 0.3s ease; }
+
+    .draft-subject {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+    }
+
+    .draft-body {
+      font-size: 13px;
+      font-family: var(--mono);
+      line-height: 1.75;
+      color: var(--text-main);
+      white-space: pre-wrap;
+      min-height: 20px;
+    }
+
+    .cursor-blink {
+      display: inline-block;
+      width: 2px;
+      height: 14px;
+      background: var(--text-main);
+      margin-left: 1px;
+      vertical-align: middle;
+      animation: blink 0.8s step-end infinite;
+    }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    .draft-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 9px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: white;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+
+    .action-btn:hover { background: #f1f5f9; }
+
+    .action-btn.primary {
+      background: var(--text-main);
+      color: white;
+      border-color: var(--text-main);
+    }
+
+    .action-btn.primary:hover { opacity: 0.85; }
+
+    .action-btn.gmail {
+      background: #ea4335;
+      color: white;
+      border-color: #ea4335;
+    }
+
+    .action-btn.gmail:hover { opacity: 0.85; }
+
+    /* Spinner */
+    .spin {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Empty State */
+    .empty-view {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-hint);
+      text-align: center;
+      gap: 12px;
+    }
+
+    .empty-view svg { opacity: 0.4; }
+    .empty-view p { font-size: 15px; }
+
+    .empty-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .empty-btn {
+      padding: 9px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: var(--font);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      background: white;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .empty-btn:hover { background: #f1f5f9; }
+
+    /* Success overlay */
+    .success-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.97);
+      z-index: 50;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .success-overlay.show { display: flex; }
+
+    .success-circle {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: var(--green-light);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .success-overlay h2 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .success-overlay p {
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+
+    .back-btn {
+      margin-top: 8px;
+      padding: 12px 28px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      background: white;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 768px) {
+      .app { flex-direction: column; }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        border-bottom: 1px solid #1e293b;
+      }
+
+      .sidebar::-webkit-scrollbar { display: none; }
+      .sidebar-logo, .sidebar-section { display: none; }
+
+      .cand-item {
+        flex: 0 0 180px;
+        border-left: none;
+        border-bottom: 2px solid transparent;
+        padding: 12px 14px;
+      }
+
+      .cand-item.active { border-bottom-color: #3b82f6; border-left-color: transparent; }
+
+      .view-head, .view-body, .view-foot { padding-left: 20px; padding-right: 20px; }
+      .score-row { grid-template-columns: 1fr 1fr; }
+      .cand-heading { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+      </div>
+      <span class="logo-text">Career OS</span>
+    </div>
+
+    <div class="sidebar-section">Inbound Radar</div>
+    <div class="cand-item" id="tab-david" onclick="switchView('david')">
+      <div class="cand-name">David Lin <div class="dot dot-blue"></div></div>
+      <div class="cand-meta">Trajectory match · Junior Emb.</div>
+    </div>
+
+    <div class="sidebar-section">Talent Pool Alerts</div>
+    <div class="cand-item active" id="tab-alex" onclick="switchView('alex')">
+      <div class="cand-name">Alex Tan <div class="dot dot-green"></div></div>
+      <div class="cand-meta">Gap bridged · Senior Emb.</div>
+    </div>
+    <div class="cand-item" id="tab-sarah" onclick="switchView('sarah')">
+      <div class="cand-name">Sarah Lee <div class="dot dot-gray"></div></div>
+      <div class="cand-meta">No signal detected</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Alex Panel -->
+    <div class="view active" id="view-alex">
+      <div class="view-head">
+        <div class="module-tag tag-green">⚡ Talent Pool — Re-engagement Signal</div>
+        <div class="cand-heading">Alex Tan</div>
+        <div class="cand-sub">Target Position: Senior Hardware Engineer</div>
+        <div class="head-badges">
+          <span class="badge badge-green">✓ Gap Bridged</span>
+          <span class="badge badge-amber">Opted-in · 12 months ago</span>
+          <span class="badge badge-gray">Role Open Now</span>
+        </div>
+      </div>
+
+      <div class="view-body">
+        <!-- Scores -->
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Match Score</div>
+            <div class="score-val" style="color:#16a34a;">91%</div>
+            <div class="score-note">+34 pts since last review</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Warmth Level</div>
+            <div class="score-val" style="color:#92400e;">3 / 5</div>
+            <div class="score-note">Engaged opt-in</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Urgency</div>
+            <div class="score-val" style="color:var(--primary);">High</div>
+            <div class="score-note">Senior role open</div>
+          </div>
+        </div>
+
+        <!-- Skill Gap Diff -->
+        <div class="block">
+          <div class="block-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Skill gap diff — then vs now
+          </div>
+          <div class="gap-row">
+            <span class="gap-label">KiCad PCB</span>
+            <div class="gap-track"><div class="gap-fill fill-green" id="alex-bar-1"></div></div>
+            <span class="gap-pct" id="alex-pct-1">0%</span>
+          </div>
+          <div class="gap-row">
+            <span class="gap-label">EMI Mitigation</span>
+            <div class="gap-track"><div class="gap-fill fill-green" id="alex-bar-2"></div></div>
+            <span class="gap-pct" id="alex-pct-2">0%</span>
+          </div>
+          <div class="gap-row">
+            <span class="gap-label">RTL Security</span>
+            <div class="gap-track"><div class="gap-fill fill-green" id="alex-bar-3"></div></div>
+            <span class="gap-pct" id="alex-pct-3">0%</span>
+          </div>
+          <div class="gap-row">
+            <span class="gap-label">Schematic Rev.</span>
+            <div class="gap-track"><div class="gap-fill fill-yellow" id="alex-bar-4"></div></div>
+            <span class="gap-pct" id="alex-pct-4">0%</span>
+          </div>
+        </div>
+
+        <!-- Warmth Tracker -->
+        <div class="block">
+          <div class="block-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Opt-in warmth tracker
+          </div>
+          <div class="warmth-track">
+            <div class="warmth-node wn-done">Rejected</div>
+            <div class="warmth-node wn-done">Opted-in</div>
+            <div class="warmth-node wn-done">Upskilled</div>
+            <div class="warmth-node wn-active">Re-engage ●</div>
+            <div class="warmth-node wn-pending">Offer</div>
+          </div>
+          <p class="warmth-caption">Alex opted-in to light-touch updates 12 months ago. System detected upskilling signal today — exact gaps from rejection are now closed.</p>
+        </div>
+
+        <!-- Timeline -->
+        <div class="block">
+          <div class="block-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Career arc
+          </div>
+          <div class="traj-item">
+            <div class="traj-icon icon-past">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </div>
+            <div class="traj-content">
+              <div class="traj-label">12 months ago · rejection log</div>
+              <div class="traj-text">Strong foundational logic. <strong>Gap recorded:</strong> zero industrial exposure to KiCad layout and EMI mitigation strategies.</div>
+            </div>
+          </div>
+          <div class="traj-item">
+            <div class="traj-icon icon-now">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="traj-content">
+              <div class="traj-label">Today · system alert (continuous career arc)</div>
+              <div class="traj-text"><strong>Upskilling Detected:</strong> Organized a 3-day <span class="tech-chip">KiCad</span> PCB workshop. Authored a report on <span class="tech-chip">RTL Security Risks</span>. The exact gap from last year is now fully bridged.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="view-foot">
+        <button class="gen-btn" id="btn-alex" onclick="generateDraft('alex')">
+          <span class="spin" id="spin-alex"></span>
+          <svg id="wand-alex" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 4V2m0 2v2m0-2h-2m2 0h2M3 14l9-9 9 9M5 20h14"/></svg>
+          <span id="btn-alex-text">Generate AI Re-engagement Draft</span>
+        </button>
+        <div class="draft-wrap" id="draft-alex">
+          <div class="draft-subject" id="draft-alex-subject"></div>
+          <div class="draft-body" id="draft-alex-body"></div>
+        </div>
+        <div class="draft-actions" id="draft-alex-actions" style="display:flex; margin-top:10px;">
+          <button class="action-btn" id="regen-alex" onclick="resetDraft('alex')" disabled style="opacity:0.35;cursor:not-allowed;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+            Regenerate
+          </button>
+          <button class="action-btn" id="copy-alex" onclick="copyDraft('alex')" disabled style="opacity:0.35;cursor:not-allowed;background:#f1f5f9;border-color:#94a3b8;font-weight:700;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy Draft
+          </button>
+          <button class="action-btn gmail" id="gmail-alex" onclick="showSuccess()" disabled style="opacity:0.35;cursor:not-allowed;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            Send via Gmail
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- David Panel -->
+    <div class="view" id="view-david">
+      <div class="view-head">
+        <div class="module-tag tag-blue">🎯 Inbound Radar — Trajectory Analysis</div>
+        <div class="cand-heading">David Lin</div>
+        <div class="cand-sub">Target Position: Junior Embedded Engineer</div>
+        <div class="head-badges">
+          <span class="badge badge-blue">⚡ High Trajectory Fit</span>
+          <span class="badge badge-gray">ATS Would Reject</span>
+        </div>
+      </div>
+
+      <div class="view-body">
+        <!-- Scores -->
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Trajectory Score</div>
+            <div class="score-val" style="color:var(--primary);">87%</div>
+            <div class="score-note">Hardware-bound vector</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">ATS Score</div>
+            <div class="score-val" style="color:#dc2626;">23%</div>
+            <div class="score-note">Would be filtered out</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Gap to Role</div>
+            <div class="score-val" style="color:#92400e;">~6 mo</div>
+            <div class="score-note">Estimated ramp time</div>
+          </div>
+        </div>
+
+        <!-- Signal Breakdown -->
+        <div class="block">
+          <div class="block-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            Trajectory signal breakdown
+          </div>
+          <div class="gap-row">
+            <span class="gap-label">C++ Logic</span>
+            <div class="gap-track"><div class="gap-fill fill-green" id="david-bar-1"></div></div>
+            <span class="gap-pct" id="david-pct-1">0%</span>
+          </div>
+          <div class="gap-row">
+            <span class="gap-label">HW Integration</span>
+            <div class="gap-track"><div class="gap-fill fill-green" id="david-bar-2"></div></div>
+            <span class="gap-pct" id="david-pct-2">0%</span>
+          </div>
+          <div class="gap-row">
+            <span class="gap-label">PID / Sensors</span>
+            <div class="gap-track"><div class="gap-fill fill-yellow" id="david-bar-3"></div></div>
+            <span class="gap-pct" id="david-pct-3">0%</span>
+          </div>
+          <div class="gap-row">
+            <span class="gap-label">RTOS</span>
+            <div class="gap-track"><div class="gap-fill fill-red" id="david-bar-4"></div></div>
+            <span class="gap-pct" id="david-pct-4">0%</span>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="block">
+          <div class="block-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Career arc translation
+          </div>
+          <div class="traj-item">
+            <div class="traj-icon icon-past">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div class="traj-content">
+              <div class="traj-label">ATS view — where they've been</div>
+              <div class="traj-text"><strong>ATS would reject:</strong> Resume shows only C++ console games and academic software projects. No "Embedded Systems" keyword detected.</div>
+            </div>
+          </div>
+          <div class="traj-item">
+            <div class="traj-icon icon-now-blue">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2.5"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+            </div>
+            <div class="traj-content">
+              <div class="traj-label">Career OS view — where they're heading</div>
+              <div class="traj-text"><strong>Trajectory Translation:</strong> Built autonomous line-follower using <span class="tech-chip">Raspberry Pi</span> + <span class="tech-chip">OpenCV</span>. Solved wiring constraints via a <span class="tech-chip">"Nuclear Swap"</span> motor inversion algorithm. Tuned <span class="tech-chip">PID</span> constants. Reads IR sensors as high signals. Perfect foundational logic for embedded systems.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="view-foot">
+        <button class="gen-btn" id="btn-david" onclick="generateDraft('david')" style="background:#1d4ed8;">
+          <span class="spin" id="spin-david"></span>
+          <svg id="wand-david" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 4V2m0 2v2m0-2h-2m2 0h2M3 14l9-9 9 9M5 20h14"/></svg>
+          <span id="btn-david-text">Generate Trajectory-Based Outreach</span>
+        </button>
+        <div class="draft-wrap" id="draft-david">
+          <div class="draft-subject" id="draft-david-subject"></div>
+          <div class="draft-body" id="draft-david-body"></div>
+          <div class="draft-actions" id="draft-david-actions" style="display:flex; margin-top:10px;">
+            <button class="action-btn" id="regen-david" onclick="resetDraft('david')" disabled style="opacity:0.35;cursor:not-allowed;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+              Regenerate
+            </button>
+            <button class="action-btn" id="copy-david" onclick="copyDraft('david')" disabled style="opacity:0.35;cursor:not-allowed;background:#f1f5f9;border-color:#94a3b8;font-weight:700;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              Copy Draft
+            </button>
+            <button class="action-btn gmail" id="gmail-david" onclick="showSuccess()" disabled style="opacity:0.35;cursor:not-allowed;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+              Send via Gmail
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sarah Panel -->
+    <div class="view" id="view-sarah">
+      <div class="empty-view">
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <p>No actionable trajectory or engagement signal detected for Sarah Lee.</p>
+        <div class="empty-actions">
+          <button class="empty-btn" onclick="alert('Invite to Apply flow — coming soon.')">Invite to Apply</button>
+          <button class="empty-btn" onclick="alert('Request CV flow — coming soon.')">Request CV</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Overlay -->
+    <div class="success-overlay" id="success-overlay">
+      <div class="success-circle">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="3">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <h2>Email Dispatched</h2>
+      <p>Successfully sent to candidate via Gmail Secure Link.</p>
+      <button class="back-btn" onclick="hideSuccess()">Back to Dashboard</button>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  /* ── State ── */
+  const state = {
+    alex:  { generated: false, draft: '', subject: '' },
+    david: { generated: false, draft: '', subject: '' }
+  };
+
+  const BARS = {
+    alex:  [94, 88, 82, 61],
+    david: [90, 75, 62, 18]
+  };
+
+  const FALLBACK = {
+    alex: {
+      subject: 'Reconnecting — Senior Hardware Engineering Role',
+      body: `Hi Alex,
+
+It has been about a year since we last spoke. At the time, we needed industrial experience with KiCad layout and EMI mitigation — a gap we noted honestly.
+
+Our system flagged your recent initiative organising a KiCad PCB workshop, and your published report on RTL security risks in PCB design.
+
+That is exactly the growth we were hoping to see.
+
+We have a Senior Hardware Engineer role open right now, and you are at the top of our list. Would you be open to a 20-minute call this week?
+
+Best regards,
+Hiring Team`
+    },
+    david: {
+      subject: 'Your Raspberry Pi project & a Junior Embedded role',
+      body: `Hi David,
+
+Most hiring systems would have filtered your profile — no "Embedded" keyword in your history.
+
+Our engineering lead looked closer. The way you solved the motor inversion constraint with a software algorithm ("Nuclear Swap"), then tuned PID constants for IR sensor behaviour — that is exactly the cross-disciplinary instinct we hire for.
+
+We are looking for a Junior Embedded Engineer, and your trajectory is a strong fit. Are you open to a quick technical chat this week?
+
+Best regards,
+Hiring Team`
+    }
+  };
+
+  /* ── Tab switching ── */
+  function switchView(id) {
+    document.querySelectorAll('.cand-item').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    document.getElementById('view-' + id).classList.add('active');
+    if (id === 'alex' || id === 'david') animateBars(id);
+  }
+
+  /* ── Bar animation ── */
+  function animateBars(id) {
+    const vals = BARS[id];
+    vals.forEach((v, i) => {
+      setTimeout(() => {
+        const bar = document.getElementById(id + '-bar-' + (i + 1));
+        const pct = document.getElementById(id + '-pct-' + (i + 1));
+        if (bar) bar.style.width = v + '%';
+        if (pct) pct.textContent = v + '%';
+      }, i * 160);
+    });
+  }
+
+  /* ── Draft generation ── */
+  async function generateDraft(id) {
+    if (state[id].generated) return;
+
+    const btn   = document.getElementById('btn-' + id);
+    const spin  = document.getElementById('spin-' + id);
+    const wand  = document.getElementById('wand-' + id);
+    const label = document.getElementById('btn-' + id + '-text');
+
+    btn.disabled = true;
+    spin.style.display = 'inline-block';
+    wand.style.display = 'none';
+    label.textContent = 'AI analysing trajectory…';
+
+    const prompts = {
+      alex: 'Write a short, warm re-engagement email (under 130 words) from a hiring manager to Alex Tan, a hardware engineer candidate rejected 1 year ago due to lack of KiCad/EMI experience. Alex has since organised a KiCad PCB workshop and written an RTL security report — the exact gaps are closed. Tone: genuine and specific, not corporate. Output ONLY: a subject line on the first line starting with "Subject: ", then a blank line, then the email body. No extra commentary.',
+      david: 'Write a short outreach email (under 130 words) from a hiring manager to David Lin, a software-background candidate whose Raspberry Pi line-follower shows embedded systems potential — specifically a "Nuclear Swap" motor inversion algorithm and PID tuning. A standard ATS would have filtered him. Tone: warm and specific. Output ONLY: a subject line on the first line starting with "Subject: ", then a blank line, then the email body. No extra commentary.'
+    };
+
+    let rawText = '';
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompts[id] }]
+        })
+      });
+      const data = await res.json();
+      rawText = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : null;
+    } catch (e) {
+      rawText = null;
+    }
+
+    // Parse subject + body
+    let subject = FALLBACK[id].subject;
+    let body    = FALLBACK[id].body;
+
+    if (rawText) {
+      const lines = rawText.trim().split('\n');
+      if (lines[0].toLowerCase().startsWith('subject:')) {
+        subject = lines[0].replace(/^subject:\s*/i, '').trim();
+        body = lines.slice(2).join('\n').trim();
+      } else {
+        body = rawText.trim();
+      }
+    }
+
+    state[id].generated = true;
+    state[id].subject   = subject;
+    state[id].draft     = body;
+
+    // Show wrapper
+    const wrap = document.getElementById('draft-' + id);
+    wrap.classList.add('show');
+
+    // Subject line
+    const subjEl = document.getElementById('draft-' + id + '-subject');
+    subjEl.textContent = 'Subject: ' + subject;
+
+    // Hide button while typing
+    btn.style.display = 'none';
+
+    // Typewriter body
+    typeText(id, body);
+  }
+
+  function typeText(id, text) {
+    const bodyEl = document.getElementById('draft-' + id + '-body');
+    bodyEl.innerHTML = '';
+    const cursor = document.createElement('span');
+    cursor.className = 'cursor-blink';
+    bodyEl.appendChild(cursor);
+
+    let i = 0;
+    const iv = setInterval(() => {
+      if (i < text.length) {
+        bodyEl.insertBefore(document.createTextNode(text[i]), cursor);
+        i++;
+      } else {
+        cursor.remove();
+        clearInterval(iv);
+        ['regen-' + id, 'copy-' + id, 'gmail-' + id].forEach(btnId => {
+          const b = document.getElementById(btnId);
+          if (b) { b.disabled = false; b.style.opacity = '1'; b.style.cursor = 'pointer'; }
+        });
+      }
+    }, 9);
+  }
+
+  /* ── Copy ── */
+  function copyDraft(id) {
+    const full = 'Subject: ' + state[id].subject + '\n\n' + state[id].draft;
+    navigator.clipboard.writeText(full).catch(() => {});
+    const btn = document.getElementById('copy-' + id);
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+    setTimeout(() => { btn.innerHTML = orig; }, 2200);
+  }
+
+  /* ── Reset ── */
+  function resetDraft(id) {
+    state[id].generated = false;
+    state[id].draft     = '';
+    state[id].subject   = '';
+
+    const wrap    = document.getElementById('draft-' + id);
+    const subjEl  = document.getElementById('draft-' + id + '-subject');
+    const bodyEl  = document.getElementById('draft-' + id + '-body');
+    const btn     = document.getElementById('btn-' + id);
+    const spin    = document.getElementById('spin-' + id);
+    const wand    = document.getElementById('wand-' + id);
+    const label   = document.getElementById('btn-' + id + '-text');
+
+    wrap.classList.remove('show');
+    subjEl.textContent = '';
+    bodyEl.innerHTML   = '';
+
+    ['regen-' + id, 'copy-' + id, 'gmail-' + id].forEach(btnId => {
+      const b = document.getElementById(btnId);
+      if (b) { b.disabled = true; b.style.opacity = '0.35'; b.style.cursor = 'not-allowed'; }
+    });
+
+    btn.style.display = '';
+    btn.disabled = false;
+    spin.style.display = 'none';
+    wand.style.display = '';
+    label.textContent = id === 'alex'
+      ? 'Generate AI Re-engagement Draft'
+      : 'Generate Trajectory-Based Outreach';
+  }
+
+  /* ── Success ── */
+  function showSuccess() {
+    document.getElementById('success-overlay').classList.add('show');
+  }
+
+  function hideSuccess() {
+    document.getElementById('success-overlay').classList.remove('show');
+  }
+
+  /* ── Init ── */
+  animateBars('alex');
+</script>
+
+</body>
+</html>
